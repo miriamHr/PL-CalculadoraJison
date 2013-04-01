@@ -7,6 +7,7 @@
 
 \s+                   /* skip whitespace */
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
+[a-zA-Z]              return 'ID'
 "*"                   return '*'
 "/"                   return '/'
 "-"                   return '-'
@@ -24,7 +25,7 @@
 /lex
 
 /* operator associations and precedence */
-
+%right '='
 %left '+' '-'
 %left '*' '/'
 %left '^'
@@ -37,7 +38,7 @@
 %% /* language grammar */
 
 expressions
-    : e EOF
+    : e EOF //
         { typeof console !== 'undefined' ? console.log($1) : print($1);
           return $1; }
     ;
@@ -45,6 +46,10 @@ expressions
 e
     : e '+' e
         {$$ = $1+$3;}
+	| ID '=' e
+		{ symbol_table[$1] = $$ = $3; }
+	| ID
+		{ $$ = symbol_table[$ID]; }
     | e '-' e
         {$$ = $1-$3;}
     | e '*' e
